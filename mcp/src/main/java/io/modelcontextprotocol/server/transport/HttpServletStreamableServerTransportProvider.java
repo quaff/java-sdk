@@ -55,6 +55,7 @@ import reactor.core.publisher.Mono;
  * @author Zachary German
  * @author Christian Tzolov
  * @author Dariusz Jędrzejczyk
+ * @author Yanming Zhou
  * @see McpStreamableServerTransportProvider
  * @see HttpServlet
  */
@@ -81,9 +82,11 @@ public class HttpServletStreamableServerTransportProvider extends HttpServlet
 
 	public static final String UTF_8 = "UTF-8";
 
-	public static final String APPLICATION_JSON = "application/json";
+	@Deprecated(forRemoval = true)
+	public static final String APPLICATION_JSON = HttpHeaders.VALUE_APPLICATION_JSON;
 
-	public static final String TEXT_EVENT_STREAM = "text/event-stream";
+	@Deprecated(forRemoval = true)
+	public static final String TEXT_EVENT_STREAM = HttpHeaders.VALUE_TEXT_EVENT_STREAM;
 
 	public static final String FAILED_TO_SEND_ERROR_RESPONSE = "Failed to send error response: {}";
 
@@ -249,7 +252,7 @@ public class HttpServletStreamableServerTransportProvider extends HttpServlet
 		List<String> badRequestErrors = new ArrayList<>();
 
 		String accept = request.getHeader(ACCEPT);
-		if (accept == null || !accept.contains(TEXT_EVENT_STREAM)) {
+		if (accept == null || !accept.contains(HttpHeaders.VALUE_TEXT_EVENT_STREAM)) {
 			badRequestErrors.add("text/event-stream required in Accept header");
 		}
 
@@ -277,7 +280,7 @@ public class HttpServletStreamableServerTransportProvider extends HttpServlet
 		McpTransportContext transportContext = this.contextExtractor.extract(request, new DefaultMcpTransportContext());
 
 		try {
-			response.setContentType(TEXT_EVENT_STREAM);
+			response.setContentType(HttpHeaders.VALUE_TEXT_EVENT_STREAM);
 			response.setCharacterEncoding(UTF_8);
 			response.setHeader("Cache-Control", "no-cache");
 			response.setHeader("Connection", "keep-alive");
@@ -376,10 +379,10 @@ public class HttpServletStreamableServerTransportProvider extends HttpServlet
 		List<String> badRequestErrors = new ArrayList<>();
 
 		String accept = request.getHeader(ACCEPT);
-		if (accept == null || !accept.contains(TEXT_EVENT_STREAM)) {
+		if (accept == null || !accept.contains(HttpHeaders.VALUE_TEXT_EVENT_STREAM)) {
 			badRequestErrors.add("text/event-stream required in Accept header");
 		}
-		if (accept == null || !accept.contains(APPLICATION_JSON)) {
+		if (accept == null || !accept.contains(HttpHeaders.VALUE_APPLICATION_JSON)) {
 			badRequestErrors.add("application/json required in Accept header");
 		}
 
@@ -414,7 +417,7 @@ public class HttpServletStreamableServerTransportProvider extends HttpServlet
 				try {
 					McpSchema.InitializeResult initResult = init.initResult().block();
 
-					response.setContentType(APPLICATION_JSON);
+					response.setContentType(HttpHeaders.VALUE_APPLICATION_JSON);
 					response.setCharacterEncoding(UTF_8);
 					response.setHeader(HttpHeaders.MCP_SESSION_ID, init.session().getId());
 					response.setStatus(HttpServletResponse.SC_OK);
@@ -469,7 +472,7 @@ public class HttpServletStreamableServerTransportProvider extends HttpServlet
 			}
 			else if (message instanceof McpSchema.JSONRPCRequest jsonrpcRequest) {
 				// For streaming responses, we need to return SSE
-				response.setContentType(TEXT_EVENT_STREAM);
+				response.setContentType(HttpHeaders.VALUE_TEXT_EVENT_STREAM);
 				response.setCharacterEncoding(UTF_8);
 				response.setHeader("Cache-Control", "no-cache");
 				response.setHeader("Connection", "keep-alive");
@@ -576,7 +579,7 @@ public class HttpServletStreamableServerTransportProvider extends HttpServlet
 	}
 
 	public void responseError(HttpServletResponse response, int httpCode, McpError mcpError) throws IOException {
-		response.setContentType(APPLICATION_JSON);
+		response.setContentType(HttpHeaders.VALUE_APPLICATION_JSON);
 		response.setCharacterEncoding(UTF_8);
 		response.setStatus(httpCode);
 		String jsonError = objectMapper.writeValueAsString(mcpError);

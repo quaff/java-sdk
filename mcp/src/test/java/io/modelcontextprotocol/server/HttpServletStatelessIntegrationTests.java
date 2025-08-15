@@ -43,8 +43,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
-import static io.modelcontextprotocol.server.transport.HttpServletStatelessServerTransport.APPLICATION_JSON;
-import static io.modelcontextprotocol.server.transport.HttpServletStatelessServerTransport.TEXT_EVENT_STREAM;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.json;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -493,11 +491,9 @@ class HttpServletStatelessIntegrationTests {
 
 		byte[] content = new ObjectMapper().writeValueAsBytes(jsonrpcRequest);
 		request.setContent(content);
-		request.addHeader("Content-Type", "application/json");
+		request.addHeader("Content-Type", HttpHeaders.VALUE_APPLICATION_JSON);
 		request.addHeader("Content-Length", Integer.toString(content.length));
-		request.addHeader("Content-Length", Integer.toString(content.length));
-		request.addHeader("Accept", APPLICATION_JSON + ", " + TEXT_EVENT_STREAM);
-		request.addHeader("Content-Type", APPLICATION_JSON);
+		request.addHeader("Accept", HttpHeaders.VALUE_APPLICATION_JSON + ", " + HttpHeaders.VALUE_TEXT_EVENT_STREAM);
 		request.addHeader("Cache-Control", "no-cache");
 		request.addHeader(HttpHeaders.PROTOCOL_VERSION, ProtocolVersions.MCP_2025_03_26);
 		mcpStatelessServerTransport.service(request, response);

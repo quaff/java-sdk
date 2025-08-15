@@ -8,6 +8,7 @@ package io.modelcontextprotocol.spec;
  * Names of HTTP headers in use by MCP HTTP transports.
  *
  * @author Dariusz Jędrzejczyk
+ * @author Yanming Zhou
  */
 public interface HttpHeaders {
 
@@ -25,5 +26,18 @@ public interface HttpHeaders {
 	 * Identifies the MCP protocol version.
 	 */
 	String PROTOCOL_VERSION = "MCP-Protocol-Version";
+
+	/**
+	 * Media type for {@code application/json}.
+	 */
+	String VALUE_APPLICATION_JSON = "application/json";
+
+	/**
+	 * Media type for {@code text/event-stream}.
+	 * @see <a href=
+	 * "https://html.spec.whatwg.org/multipage/server-sent-events.html">Server-Sent
+	 * Events</a>
+	 */
+	String VALUE_TEXT_EVENT_STREAM = "text/event-stream";
 
 }

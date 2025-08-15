@@ -16,12 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.spec.McpError;
-import io.modelcontextprotocol.spec.McpSchema;
-import io.modelcontextprotocol.spec.McpServerSession;
-import io.modelcontextprotocol.spec.McpServerTransport;
-import io.modelcontextprotocol.spec.McpServerTransportProvider;
-import io.modelcontextprotocol.spec.ProtocolVersions;
+import io.modelcontextprotocol.spec.*;
 import io.modelcontextprotocol.util.Assert;
 import io.modelcontextprotocol.util.KeepAliveScheduler;
 import jakarta.servlet.AsyncContext;
@@ -60,6 +55,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Christian Tzolov
  * @author Alexandros Pappas
+ * @author Yanming Zhou
  * @see McpServerTransportProvider
  * @see HttpServlet
  */
@@ -72,7 +68,8 @@ public class HttpServletSseServerTransportProvider extends HttpServlet implement
 
 	public static final String UTF_8 = "UTF-8";
 
-	public static final String APPLICATION_JSON = "application/json";
+	@Deprecated(forRemoval = true)
+	public static final String APPLICATION_JSON = HttpHeaders.VALUE_APPLICATION_JSON;
 
 	public static final String FAILED_TO_SEND_ERROR_RESPONSE = "Failed to send error response: {}";
 
@@ -255,7 +252,7 @@ public class HttpServletSseServerTransportProvider extends HttpServlet implement
 			return;
 		}
 
-		response.setContentType("text/event-stream");
+		response.setContentType(HttpHeaders.VALUE_TEXT_EVENT_STREAM);
 		response.setCharacterEncoding(UTF_8);
 		response.setHeader("Cache-Control", "no-cache");
 		response.setHeader("Connection", "keep-alive");
@@ -308,7 +305,7 @@ public class HttpServletSseServerTransportProvider extends HttpServlet implement
 		// Get the session ID from the request parameter
 		String sessionId = request.getParameter("sessionId");
 		if (sessionId == null) {
-			response.setContentType(APPLICATION_JSON);
+			response.setContentType(HttpHeaders.VALUE_APPLICATION_JSON);
 			response.setCharacterEncoding(UTF_8);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			String jsonError = objectMapper.writeValueAsString(new McpError("Session ID missing in message endpoint"));
@@ -321,7 +318,7 @@ public class HttpServletSseServerTransportProvider extends HttpServlet implement
 		// Get the session from the sessions map
 		McpServerSession session = sessions.get(sessionId);
 		if (session == null) {
-			response.setContentType(APPLICATION_JSON);
+			response.setContentType(HttpHeaders.VALUE_APPLICATION_JSON);
 			response.setCharacterEncoding(UTF_8);
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			String jsonError = objectMapper.writeValueAsString(new McpError("Session not found: " + sessionId));
@@ -350,7 +347,7 @@ public class HttpServletSseServerTransportProvider extends HttpServlet implement
 			logger.error("Error processing message: {}", e.getMessage());
 			try {
 				McpError mcpError = new McpError(e.getMessage());
-				response.setContentType(APPLICATION_JSON);
+				response.setContentType(HttpHeaders.VALUE_APPLICATION_JSON);
 				response.setCharacterEncoding(UTF_8);
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				String jsonError = objectMapper.writeValueAsString(mcpError);

@@ -66,6 +66,7 @@ import reactor.util.function.Tuples;
  * </p>
  *
  * @author Christian Tzolov
+ * @author Yanming Zhou
  * @see <a href=
  * "https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http">Streamable
  * HTTP transport specification</a>
@@ -92,10 +93,6 @@ public class HttpClientStreamableHttpTransport implements McpClientTransport {
 	 * sends messages with this event type to transmit JSON-RPC protocol data.
 	 */
 	private static final String MESSAGE_EVENT_TYPE = "message";
-
-	private static final String APPLICATION_JSON = "application/json";
-
-	private static final String TEXT_EVENT_STREAM = "text/event-stream";
 
 	public static int NOT_FOUND = 404;
 
@@ -241,7 +238,7 @@ public class HttpClientStreamableHttpTransport implements McpClientTransport {
 				}
 
 				var builder = requestBuilder.uri(uri)
-					.header("Accept", TEXT_EVENT_STREAM)
+					.header("Accept", HttpHeaders.VALUE_TEXT_EVENT_STREAM)
 					.header("Cache-Control", "no-cache")
 					.header(HttpHeaders.PROTOCOL_VERSION, MCP_PROTOCOL_VERSION)
 					.GET();
@@ -367,12 +364,12 @@ public class HttpClientStreamableHttpTransport implements McpClientTransport {
 
 			String contentType = responseInfo.headers().firstValue("Content-Type").orElse("").toLowerCase();
 
-			if (contentType.contains(TEXT_EVENT_STREAM)) {
+			if (contentType.contains(HttpHeaders.VALUE_TEXT_EVENT_STREAM)) {
 				// For SSE streams, use line subscriber that returns Void
 				logger.debug("Received SSE stream response, using line subscriber");
 				return ResponseSubscribers.sseToBodySubscriber(responseInfo, sink);
 			}
-			else if (contentType.contains(APPLICATION_JSON)) {
+			else if (contentType.contains(HttpHeaders.VALUE_APPLICATION_JSON)) {
 				// For JSON responses and others, use string subscriber
 				logger.debug("Received response, using string subscriber");
 				return ResponseSubscribers.aggregateBodySubscriber(responseInfo, sink);
@@ -414,8 +411,8 @@ public class HttpClientStreamableHttpTransport implements McpClientTransport {
 				}
 
 				var builder = requestBuilder.uri(uri)
-					.header("Accept", APPLICATION_JSON + ", " + TEXT_EVENT_STREAM)
-					.header("Content-Type", APPLICATION_JSON)
+					.header("Accept", HttpHeaders.VALUE_APPLICATION_JSON + ", " + HttpHeaders.VALUE_TEXT_EVENT_STREAM)
+					.header("Content-Type", HttpHeaders.VALUE_APPLICATION_JSON)
 					.header("Cache-Control", "no-cache")
 					.header(HttpHeaders.PROTOCOL_VERSION, MCP_PROTOCOL_VERSION)
 					.POST(HttpRequest.BodyPublishers.ofString(jsonBody));
@@ -463,7 +460,7 @@ public class HttpClientStreamableHttpTransport implements McpClientTransport {
 						deliveredSink.success();
 						return Flux.empty();
 					}
-					else if (contentType.contains(TEXT_EVENT_STREAM)) {
+					else if (contentType.contains(HttpHeaders.VALUE_TEXT_EVENT_STREAM)) {
 						return Flux.just(((ResponseSubscribers.SseResponseEvent) responseEvent).sseEvent())
 							.flatMap(sseEvent -> {
 								try {
@@ -492,7 +489,7 @@ public class HttpClientStreamableHttpTransport implements McpClientTransport {
 								}
 							});
 					}
-					else if (contentType.contains(APPLICATION_JSON)) {
+					else if (contentType.contains(HttpHeaders.VALUE_APPLICATION_JSON)) {
 						deliveredSink.success();
 						String data = ((ResponseSubscribers.AggregateResponseEvent) responseEvent).data();
 						if (sentMessage instanceof McpSchema.JSONRPCNotification && Utils.hasText(data)) {

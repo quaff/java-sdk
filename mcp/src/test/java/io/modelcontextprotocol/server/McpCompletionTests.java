@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
+import io.modelcontextprotocol.spec.HttpHeaders;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.startup.Tomcat;
@@ -42,6 +43,7 @@ import io.modelcontextprotocol.spec.McpError;
  * Tests for completion functionality with context support.
  *
  * @author Surbhi Bansal
+ * @author Yanming Zhou
  */
 class McpCompletionTests {
 
@@ -210,7 +212,7 @@ class McpCompletionTests {
 			.uri("db://{database}/{table}")
 			.name("Database Table")
 			.description("Resource representing a table in a database")
-			.mimeType("application/json")
+			.mimeType(HttpHeaders.VALUE_APPLICATION_JSON)
 			.size(456L)
 			.build();
 
@@ -287,7 +289,7 @@ class McpCompletionTests {
 			.uri("db://{database}/{table}")
 			.name("Database Table")
 			.description("Resource representing a table in a database")
-			.mimeType("application/json")
+			.mimeType(HttpHeaders.VALUE_APPLICATION_JSON)
 			.size(456L)
 			.build();
 

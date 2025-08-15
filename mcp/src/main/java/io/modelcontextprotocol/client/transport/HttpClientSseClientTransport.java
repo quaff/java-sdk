@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import io.modelcontextprotocol.spec.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +24,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.modelcontextprotocol.client.transport.ResponseSubscribers.ResponseEvent;
-import io.modelcontextprotocol.spec.McpClientTransport;
-import io.modelcontextprotocol.spec.McpSchema;
-import io.modelcontextprotocol.spec.ProtocolVersions;
 import io.modelcontextprotocol.spec.McpSchema.JSONRPCMessage;
-import io.modelcontextprotocol.spec.McpTransportException;
 import io.modelcontextprotocol.util.Assert;
 import io.modelcontextprotocol.util.Utils;
 import reactor.core.Disposable;
@@ -59,6 +56,7 @@ import reactor.core.publisher.Sinks;
  * </ul>
  *
  * @author Christian Tzolov
+ * @author Yanming Zhou
  * @see io.modelcontextprotocol.spec.McpTransport
  * @see io.modelcontextprotocol.spec.McpClientTransport
  */
@@ -248,7 +246,7 @@ public class HttpClientSseClientTransport implements McpClientTransport {
 		private ObjectMapper objectMapper = new ObjectMapper();
 
 		private HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-			.header("Content-Type", "application/json");
+			.header("Content-Type", HttpHeaders.VALUE_APPLICATION_JSON);
 
 		private AsyncHttpRequestCustomizer httpRequestCustomizer = AsyncHttpRequestCustomizer.NOOP;
 
@@ -401,7 +399,7 @@ public class HttpClientSseClientTransport implements McpClientTransport {
 		return Mono.defer(() -> {
 			var builder = requestBuilder.copy()
 				.uri(uri)
-				.header("Accept", "text/event-stream")
+				.header("Accept", HttpHeaders.VALUE_TEXT_EVENT_STREAM)
 				.header("Cache-Control", "no-cache")
 				.header(MCP_PROTOCOL_VERSION_HEADER_NAME, MCP_PROTOCOL_VERSION)
 				.GET();

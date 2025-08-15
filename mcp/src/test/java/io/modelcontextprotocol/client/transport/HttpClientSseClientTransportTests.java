@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.modelcontextprotocol.spec.HttpHeaders;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.JSONRPCRequest;
 import org.junit.jupiter.api.AfterAll;
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.when;
  * Tests for the {@link HttpClientSseClientTransport} class.
  *
  * @author Christian Tzolov
+ * @author Yanming Zhou
  */
 @Timeout(15)
 class HttpClientSseClientTransportTests {
@@ -71,8 +73,8 @@ class HttpClientSseClientTransportTests {
 
 		public TestHttpClientSseClientTransport(final String baseUri) {
 			super(HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build(),
-					HttpRequest.newBuilder().header("Content-Type", "application/json"), baseUri, "/sse",
-					new ObjectMapper(), AsyncHttpRequestCustomizer.NOOP);
+					HttpRequest.newBuilder().header("Content-Type", HttpHeaders.VALUE_APPLICATION_JSON), baseUri,
+					"/sse", new ObjectMapper(), AsyncHttpRequestCustomizer.NOOP);
 		}
 
 		public int getInboundMessageCount() {

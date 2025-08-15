@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import io.modelcontextprotocol.spec.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Christian Tzolov
  * @author Dariusz Jędrzejczyk
+ * @author Yanming Zhou
  */
 @WebServlet(asyncSupported = true)
 public class HttpServletStatelessServerTransport extends HttpServlet implements McpStatelessServerTransport {
@@ -41,9 +43,11 @@ public class HttpServletStatelessServerTransport extends HttpServlet implements 
 
 	public static final String UTF_8 = "UTF-8";
 
-	public static final String APPLICATION_JSON = "application/json";
+	@Deprecated(forRemoval = true)
+	public static final String APPLICATION_JSON = HttpHeaders.VALUE_APPLICATION_JSON;
 
-	public static final String TEXT_EVENT_STREAM = "text/event-stream";
+	@Deprecated(forRemoval = true)
+	public static final String TEXT_EVENT_STREAM = HttpHeaders.VALUE_TEXT_EVENT_STREAM;
 
 	public static final String ACCEPT = "Accept";
 
@@ -126,7 +130,8 @@ public class HttpServletStatelessServerTransport extends HttpServlet implements 
 		McpTransportContext transportContext = this.contextExtractor.extract(request, new DefaultMcpTransportContext());
 
 		String accept = request.getHeader(ACCEPT);
-		if (accept == null || !(accept.contains(APPLICATION_JSON) && accept.contains(TEXT_EVENT_STREAM))) {
+		if (accept == null || !(accept.contains(HttpHeaders.VALUE_APPLICATION_JSON)
+				&& accept.contains(HttpHeaders.VALUE_TEXT_EVENT_STREAM))) {
 			this.responseError(response, HttpServletResponse.SC_BAD_REQUEST,
 					new McpError("Both application/json and text/event-stream required in Accept header"));
 			return;
@@ -149,7 +154,7 @@ public class HttpServletStatelessServerTransport extends HttpServlet implements 
 						.contextWrite(ctx -> ctx.put(McpTransportContext.KEY, transportContext))
 						.block();
 
-					response.setContentType(APPLICATION_JSON);
+					response.setContentType(HttpHeaders.VALUE_APPLICATION_JSON);
 					response.setCharacterEncoding(UTF_8);
 					response.setStatus(HttpServletResponse.SC_OK);
 
@@ -201,7 +206,7 @@ public class HttpServletStatelessServerTransport extends HttpServlet implements 
 	 * @throws IOException If an I/O error occurs
 	 */
 	private void responseError(HttpServletResponse response, int httpCode, McpError mcpError) throws IOException {
-		response.setContentType(APPLICATION_JSON);
+		response.setContentType(HttpHeaders.VALUE_APPLICATION_JSON);
 		response.setCharacterEncoding(UTF_8);
 		response.setStatus(httpCode);
 		String jsonError = objectMapper.writeValueAsString(mcpError);

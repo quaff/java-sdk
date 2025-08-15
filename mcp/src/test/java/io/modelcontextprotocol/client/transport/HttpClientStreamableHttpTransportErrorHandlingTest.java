@@ -36,6 +36,7 @@ import reactor.test.StepVerifier;
  * 404 and 400 status codes.
  *
  * @author Christian Tzolov
+ * @author Yanming Zhou
  */
 @Timeout(15)
 public class HttpClientStreamableHttpTransportErrorHandlingTest {
@@ -71,7 +72,7 @@ public class HttpClientStreamableHttpTransportErrorHandlingTest {
 				int status = serverResponseStatus.get();
 
 				// Set response headers
-				httpExchange.getResponseHeaders().set("Content-Type", "application/json");
+				httpExchange.getResponseHeaders().set("Content-Type", HttpHeaders.VALUE_APPLICATION_JSON);
 
 				// Add session ID to response if configured
 				String responseSessionId = currentServerSessionId.get();
@@ -288,7 +289,7 @@ public class HttpClientStreamableHttpTransportErrorHandlingTest {
 				}
 				else {
 					// Normal SSE response
-					exchange.getResponseHeaders().set("Content-Type", "text/event-stream");
+					exchange.getResponseHeaders().set("Content-Type", HttpHeaders.VALUE_TEXT_EVENT_STREAM);
 					exchange.sendResponseHeaders(200, 0);
 					// Send a test SSE event
 					String sseData = "event: message\ndata: {\"jsonrpc\":\"2.0\",\"method\":\"test\",\"params\":{}}\n\n";
@@ -297,7 +298,7 @@ public class HttpClientStreamableHttpTransportErrorHandlingTest {
 			}
 			else {
 				// POST request handling
-				exchange.getResponseHeaders().set("Content-Type", "application/json");
+				exchange.getResponseHeaders().set("Content-Type", HttpHeaders.VALUE_APPLICATION_JSON);
 				String responseSessionId = currentServerSessionId.get();
 				if (responseSessionId != null) {
 					exchange.getResponseHeaders().set(HttpHeaders.MCP_SESSION_ID, responseSessionId);

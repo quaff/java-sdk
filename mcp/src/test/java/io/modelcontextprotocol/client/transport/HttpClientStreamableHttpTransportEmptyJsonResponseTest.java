@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import io.modelcontextprotocol.spec.HttpHeaders;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,7 @@ import reactor.test.StepVerifier;
  * Handles emplty application/json response with 200 OK status code.
  *
  * @author codezkk
+ * @author Yanming Zhou
  */
 public class HttpClientStreamableHttpTransportEmptyJsonResponseTest {
 
@@ -47,7 +49,7 @@ public class HttpClientStreamableHttpTransportEmptyJsonResponseTest {
 
 		// Empty, 200 OK response for the /mcp endpoint
 		server.createContext("/mcp", exchange -> {
-			exchange.getResponseHeaders().set("Content-Type", "application/json");
+			exchange.getResponseHeaders().set("Content-Type", HttpHeaders.VALUE_APPLICATION_JSON);
 			exchange.sendResponseHeaders(200, 0);
 			exchange.close();
 		});

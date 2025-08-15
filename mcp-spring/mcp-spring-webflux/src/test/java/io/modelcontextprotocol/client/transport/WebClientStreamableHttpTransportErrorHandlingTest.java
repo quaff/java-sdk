@@ -42,6 +42,7 @@ import reactor.test.StepVerifier;
  * issues with proper Reactor patterns.
  *
  * @author Christian Tzolov
+ * @author Yanming Zhou
  */
 @Timeout(15)
 public class WebClientStreamableHttpTransportErrorHandlingTest {
@@ -105,7 +106,7 @@ public class WebClientStreamableHttpTransportErrorHandlingTest {
 				secondRequestLatch.countDown();
 			}
 
-			exchange.getResponseHeaders().set("Content-Type", "application/json");
+			exchange.getResponseHeaders().set("Content-Type", HttpHeaders.VALUE_APPLICATION_JSON);
 
 			// Don't include session ID in 404 and 400 responses - the implementation
 			// checks if the transport has a session stored locally
@@ -348,7 +349,7 @@ public class WebClientStreamableHttpTransportErrorHandlingTest {
 				}
 				else {
 					// Normal SSE response
-					exchange.getResponseHeaders().set("Content-Type", "text/event-stream");
+					exchange.getResponseHeaders().set("Content-Type", HttpHeaders.VALUE_TEXT_EVENT_STREAM);
 					exchange.sendResponseHeaders(200, 0);
 					// Send a test SSE event
 					String sseData = "event: message\ndata: {\"jsonrpc\":\"2.0\",\"method\":\"test\",\"params\":{}}\n\n";
@@ -357,7 +358,7 @@ public class WebClientStreamableHttpTransportErrorHandlingTest {
 			}
 			else {
 				// POST request handling
-				exchange.getResponseHeaders().set("Content-Type", "application/json");
+				exchange.getResponseHeaders().set("Content-Type", HttpHeaders.VALUE_APPLICATION_JSON);
 				String responseSessionId = currentServerSessionId.get();
 				if (responseSessionId != null) {
 					exchange.getResponseHeaders().set(HttpHeaders.MCP_SESSION_ID, responseSessionId);

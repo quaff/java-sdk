@@ -26,6 +26,7 @@ import net.javacrumbs.jsonunit.core.Option;
 /**
  * @author Christian Tzolov
  * @author Anurag Pant
+ * @author Yanming Zhou
  */
 public class McpSchemaTests {
 
@@ -451,7 +452,7 @@ public class McpSchemaTests {
 				"First test resource", "text/plain", null);
 
 		McpSchema.Resource resource2 = new McpSchema.Resource("resource://test2", "Test Resource 2",
-				"Second test resource", "application/json", null);
+				"Second test resource", HttpHeaders.VALUE_APPLICATION_JSON, null);
 
 		Map<String, Object> meta = Map.of("metaKey", "metaValue");
 
