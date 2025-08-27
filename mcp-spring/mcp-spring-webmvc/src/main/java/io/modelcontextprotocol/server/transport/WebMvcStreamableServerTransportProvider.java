@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  */
 
 package io.modelcontextprotocol.server.transport;
@@ -50,6 +50,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Christian Tzolov
  * @author Dariusz Jędrzejczyk
+ * @author Yanming Zhou
  * @see McpStreamableServerTransportProvider
  * @see RouterFunction
  */
@@ -233,9 +234,10 @@ public class WebMvcStreamableServerTransportProvider implements McpStreamableSer
 			return ServerResponse.status(HttpStatus.SERVICE_UNAVAILABLE).body("Server is shutting down");
 		}
 
-		List<MediaType> acceptHeaders = request.headers().asHttpHeaders().getAccept();
-		if (!acceptHeaders.contains(MediaType.TEXT_EVENT_STREAM)) {
-			return ServerResponse.badRequest().body("Invalid Accept header. Expected TEXT_EVENT_STREAM");
+		List<MediaType> acceptMediaTypes = request.headers().asHttpHeaders().getAccept();
+		if (!MediaTypeHelper.matches(acceptMediaTypes, MediaType.APPLICATION_JSON, MediaType.TEXT_EVENT_STREAM)) {
+			return ServerResponse.badRequest()
+				.body(new McpError("Invalid Accept headers. Expected TEXT_EVENT_STREAM and APPLICATION_JSON"));
 		}
 
 		McpTransportContext transportContext = this.contextExtractor.extract(request, new DefaultMcpTransportContext());
@@ -315,9 +317,8 @@ public class WebMvcStreamableServerTransportProvider implements McpStreamableSer
 			return ServerResponse.status(HttpStatus.SERVICE_UNAVAILABLE).body("Server is shutting down");
 		}
 
-		List<MediaType> acceptHeaders = request.headers().asHttpHeaders().getAccept();
-		if (!acceptHeaders.contains(MediaType.TEXT_EVENT_STREAM)
-				|| !acceptHeaders.contains(MediaType.APPLICATION_JSON)) {
+		List<MediaType> acceptMediaTypes = request.headers().asHttpHeaders().getAccept();
+		if (!MediaTypeHelper.matches(acceptMediaTypes, MediaType.APPLICATION_JSON, MediaType.TEXT_EVENT_STREAM)) {
 			return ServerResponse.badRequest()
 				.body(new McpError("Invalid Accept headers. Expected TEXT_EVENT_STREAM and APPLICATION_JSON"));
 		}

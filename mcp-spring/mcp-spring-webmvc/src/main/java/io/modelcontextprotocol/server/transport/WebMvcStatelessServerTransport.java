@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  */
 
 package io.modelcontextprotocol.server.transport;
@@ -34,6 +34,7 @@ import java.util.List;
  * {@link io.modelcontextprotocol.server.transport.WebFluxStatelessServerTransport}
  *
  * @author Christian Tzolov
+ * @author Yanming Zhou
  */
 public class WebMvcStatelessServerTransport implements McpStatelessServerTransport {
 
@@ -103,10 +104,10 @@ public class WebMvcStatelessServerTransport implements McpStatelessServerTranspo
 
 		McpTransportContext transportContext = this.contextExtractor.extract(request, new DefaultMcpTransportContext());
 
-		List<MediaType> acceptHeaders = request.headers().asHttpHeaders().getAccept();
-		if (!(acceptHeaders.contains(MediaType.APPLICATION_JSON)
-				&& acceptHeaders.contains(MediaType.TEXT_EVENT_STREAM))) {
-			return ServerResponse.badRequest().build();
+		List<MediaType> acceptMediaTypes = request.headers().asHttpHeaders().getAccept();
+		if (!MediaTypeHelper.matches(acceptMediaTypes, MediaType.APPLICATION_JSON, MediaType.TEXT_EVENT_STREAM)) {
+			return ServerResponse.badRequest()
+				.body(new McpError("Invalid Accept headers. Expected TEXT_EVENT_STREAM and APPLICATION_JSON"));
 		}
 
 		try {

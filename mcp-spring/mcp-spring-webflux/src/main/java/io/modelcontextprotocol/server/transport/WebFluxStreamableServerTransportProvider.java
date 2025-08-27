@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Implementation of a WebFlux based {@link McpStreamableServerTransportProvider}.
  *
  * @author Dariusz Jędrzejczyk
+ * @author Yanming Zhou
  */
 public class WebFluxStreamableServerTransportProvider implements McpStreamableServerTransportProvider {
 
@@ -169,14 +170,15 @@ public class WebFluxStreamableServerTransportProvider implements McpStreamableSe
 		McpTransportContext transportContext = this.contextExtractor.extract(request, new DefaultMcpTransportContext());
 
 		return Mono.defer(() -> {
-			List<MediaType> acceptHeaders = request.headers().asHttpHeaders().getAccept();
-			if (!acceptHeaders.contains(MediaType.TEXT_EVENT_STREAM)) {
-				return ServerResponse.badRequest().build();
+			List<MediaType> acceptMediaTypes = request.headers().asHttpHeaders().getAccept();
+			if (!MediaTypeHelper.matches(acceptMediaTypes, MediaType.TEXT_EVENT_STREAM)) {
+				return ServerResponse.badRequest()
+					.bodyValue(new McpError("Invalid Accept headers. Expected TEXT_EVENT_STREAM"));
 			}
 
 			if (!request.headers().asHttpHeaders().containsKey(HttpHeaders.MCP_SESSION_ID)) {
-				return ServerResponse.badRequest().build(); // TODO: say we need a session
-															// id
+				return ServerResponse.badRequest()
+					.bodyValue(new McpError("Missing header: " + HttpHeaders.MCP_SESSION_ID));
 			}
 
 			String sessionId = request.headers().asHttpHeaders().getFirst(HttpHeaders.MCP_SESSION_ID);
@@ -219,10 +221,10 @@ public class WebFluxStreamableServerTransportProvider implements McpStreamableSe
 
 		McpTransportContext transportContext = this.contextExtractor.extract(request, new DefaultMcpTransportContext());
 
-		List<MediaType> acceptHeaders = request.headers().asHttpHeaders().getAccept();
-		if (!(acceptHeaders.contains(MediaType.APPLICATION_JSON)
-				&& acceptHeaders.contains(MediaType.TEXT_EVENT_STREAM))) {
-			return ServerResponse.badRequest().build();
+		List<MediaType> acceptMediaTypes = request.headers().asHttpHeaders().getAccept();
+		if (!MediaTypeHelper.matches(acceptMediaTypes, MediaType.APPLICATION_JSON, MediaType.TEXT_EVENT_STREAM)) {
+			return ServerResponse.badRequest()
+				.bodyValue(new McpError("Invalid Accept headers. Expected TEXT_EVENT_STREAM and APPLICATION_JSON"));
 		}
 
 		return request.bodyToMono(String.class).<ServerResponse>flatMap(body -> {
